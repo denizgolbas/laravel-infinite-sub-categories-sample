@@ -15,10 +15,14 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('parent_id')->nullable()->default(null);
             $table->string('name')->unique();
             $table->string('description');
             $table->string('slug')->unique();
             $table->timestamps();
+        });
+        Schema::table('categories', function($table) {
+            $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }
 
@@ -29,6 +33,10 @@ class CreateCategoriesTable extends Migration
      */
     public function down()
     {
+        Schema::table('categories', function($table) {
+            $table->dropForeign(['parent_id']);
+            $table->dropColumn('parent_id');
+        });
         Schema::dropIfExists('categories');
     }
 }
